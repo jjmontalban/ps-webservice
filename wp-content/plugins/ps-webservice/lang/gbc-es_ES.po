@@ -1,0 +1,232 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: GB Customers\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-08-26 17:32+0200\n"
+"PO-Revision-Date: 2022-03-24 12:48+0100\n"
+"Last-Translator: JJMontalban <jjmontalban@gmail.com>\n"
+"Language-Team: Español\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 3.0.1\n"
+"X-Loco-Version: 2.3.1; wp-5.3.2\n"
+
+#. Description of the plugin
+msgid ""
+"This plugin to create custom customers list-tables from database using "
+"WP_List_Table class."
+msgstr ""
+"Este plugin crea tablas de listas de clientes personalizadas desde la base "
+"de datos usando la clase WP_List_Table."
+
+#: gb-customers.php:149
+msgid "Edit"
+msgstr "Editar"
+
+#: gb-customers.php:149
+msgid "Customer"
+msgstr "Cliente"
+
+#: gb-customers.php:149
+msgid "Customers"
+msgstr "Clientes"
+
+#: gb-customers.php:143
+msgid "View"
+msgstr "Ver"
+
+#: gb-customers.php:150
+msgid "Delete"
+msgstr "Eliminar"
+
+#: gb-customers.php:172
+msgid "Name"
+msgstr "Nombre"
+
+#: gb-customers.php:173
+msgid "Last Name"
+msgstr "Apellidos"
+
+#: gb-customers.php:174
+msgid "E-Mail"
+msgstr "E-mail"
+
+#: gb-customers.php:175 gb-customers.php:179
+msgid "Phone"
+msgstr "Teléfono"
+
+#: gb-customers.php:176
+msgid "Company"
+msgstr "Empresa"
+
+#: gb-customers.php:177
+msgid "Web"
+msgstr "Web"
+
+#: gb-customers.php:178
+msgid "Email"
+msgstr "Email"
+
+#: gb-customers.php:180
+msgid "Job Title"
+msgstr "Cargo"
+
+#: gb-customers.php:260 gb-customers.php:261 includes/admin.php:17
+msgid "Contacts"
+msgstr "Contactos"
+
+#: gb-customers.php:263 includes/admin.php:18
+msgid "Add new"
+msgstr "Añadir nuevo"
+
+#: gb-customers.php:273
+msgid "Name is required"
+msgstr "El nombre es requerido"
+
+#: gb-customers.php:273
+msgid "Email is required"
+msgstr "El email es requerido"
+
+#: gb-customers.php:274
+msgid "Last Name is required"
+msgstr "Los apellidos son requeridos"
+
+#: gb-customers.php:274
+msgid "Phone is required"
+msgstr "Se requiere al menos 1 nº de teléfono"
+
+#: gb-customers.php:275
+msgid "E-Mail is in wrong format"
+msgstr "El email tiene un formato erróneo"
+
+#: gb-customers.php:276
+msgid "Phone can not be less than zero"
+msgstr "El teléfono no puede ser menor que cero"
+
+#: gb-customers.php:277
+msgid "Phone must be number"
+msgstr "El teléfono tiene que ser númerico"
+
+#: includes/admin.php:11
+#, php-format
+msgid "Items deleted: %d"
+msgstr "Clientes eliminados: %d"
+
+#: includes/admin.php:67
+msgid "Item was successfully saved"
+msgstr "Cliente guardado satisfactoriamente"
+
+#: includes/admin.php:69
+msgid "There was an error while saving customer"
+msgstr "Hubo un error al guardar el cliente"
+
+#: includes/admin.php:74
+msgid "Item was successfully updated"
+msgstr "Contacto actualizado satisfactoriamente"
+
+#: includes/admin.php:76
+msgid "There was an error while updating item"
+msgstr "Hubo un error al actualizar el contacto"
+
+#: includes/admin.php:91
+msgid "Item not found"
+msgstr "Contacto no encontrado"
+
+#: includes/admin.php:97
+msgid "Contact data"
+msgstr "Datos del contacto"
+
+#: includes/admin.php:102
+msgid "Contact"
+msgstr "Contacto"
+
+#: includes/admin.php:103
+msgid "back to list"
+msgstr "volver al listado"
+
+#: includes/admin.php:123
+msgid "Save"
+msgstr "Guardar"
+
+#: includes/admin.php:142
+msgid "Name:"
+msgstr "Nombre:"
+
+#: includes/admin.php:147
+msgid "Last Name:"
+msgstr "Apellidos:"
+
+#: includes/admin.php:155 includes/admin.php:178
+msgid "E-Mail:"
+msgstr "E-Mail:"
+
+#: includes/admin.php:155 includes/admin.php:178
+msgid "Phone 1"
+msgstr "Teléfono 1"
+
+#: includes/admin.php:155 includes/admin.php:178
+msgid "All Customers"
+msgstr "Todos los Clientes"
+
+#: includes/admin.php:160 includes/admin.php:182
+msgid "Phone 2"
+msgstr "Teléfono 2"
+
+#: includes/admin.php:167
+msgid "Company:"
+msgstr "Empresa:"
+
+#: includes/admin.php:171
+msgid "Web:"
+msgstr "Web:"
+
+#: includes/admin.php:186
+msgid "Job Title:"
+msgstr "Cargo:"
+
+#: includes/admin.php:193
+msgid "Address:"
+msgstr "Dirección:"
+
+#: includes/admin.php:197
+msgid "Notes:"
+msgstr "Notas:"
+
+#: includes/admin.php:197
+msgid "Notes"
+msgstr "Notas"
+
+#: gb-customers.php:174
+msgid "VAT Number"
+msgstr "VAT"
+
+#: admin.php:174
+msgid "Customers Data"
+msgstr "Datos del Cliente"
+
+#: admin.php:174
+msgid "Customer Data"
+msgstr "Datos del Cliente"
+
+#: admin.php:174
+msgid "Customer Address"
+msgstr "Dirección del Cliente"
+
+#: admin.php:174
+msgid "Customer was successfully saved"
+msgstr "El cliente ha sido guardado"
+
+#: admin.php:174
+msgid "Customer was successfully updated"
+msgstr "El cliente ha sido actualizado"
+
+#: admin.php:10
+msgid "Customer deleted"
+msgstr "Cliente eliminado"
+
+#: admin.php:10
+msgid "Address Data"
+msgstr "Datos de Dirección"
