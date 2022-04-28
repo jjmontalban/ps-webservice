@@ -9,10 +9,6 @@ Stable tag: 2.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-
-This plugin create custom contact list-tables from database using WP_List_Table class.
-
-
 == Description ==
 
 To sincronize customers Prestashop via webservice
