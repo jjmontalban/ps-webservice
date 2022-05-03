@@ -20,32 +20,31 @@ require plugin_dir_path( __FILE__ ) . 'classes/webservice.php';
 global $wpdb_db_version;
 $wpdb_db_version = '1.0.0'; 
 
-$plugin = plugin_basename( __FILE__ );
-
-//Adding styles
-function psws_custom_styles() {
-    wp_enqueue_style('custom-styles', plugins_url('/css/styles.css', __FILE__ ));
-}
-add_action('admin_enqueue_scripts', 'psws_custom_styles');
-
 //Load plugin translated strings
 function psws_plugin_load_textdomain() {
-    load_plugin_textdomain( 'gbc', false, basename( dirname( __FILE__ ) ) . '/lang' ); 
+    load_plugin_textdomain( 'psws', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' ); 
 }
-add_action( 'plugins_loaded', 'psws_plugin_load_textdomain' );
+add_action( 'init', 'psws_plugin_load_textdomain' );
 
-//Check if WooCommerce is activated
-if ( ! function_exists( 'is_woocommerce_activated' ) ) {
-    function is_woocommerce_activated() {
-        if ( class_exists( 'woocommerce' ) ) { return true; } else { return false; }
+//check if woocommerce active
+function woo_activate() {
+    $plugin = plugin_basename( __FILE__ );
+
+    if ( !class_exists ('Woocommerce') ) 
+    { 
+        // Message error + allow back link.
+        deactivate_plugins( $plugin );
+        wp_die( _e( "This plugin requires Woocommerce to be installed and activated.", "psws" ), _e( "Error", "psws" ), array( 'back_link' => true ) );        
     }
 }
+register_activation_hook( __FILE__, 'woo_activate' ); // Register myplugin_activate on
 
 function psws_install()
 {
     global $wpdb_db_version;
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    
     // version
     add_option('psws_db_version', $wpdb_db_version);
 
@@ -70,7 +69,7 @@ add_action('plugins_loaded', 'psws_update_db_check');
 
 function psws_admin_menu()
 {
-    add_menu_page(__('PS Webservice', 'gbc'), __('PS Webservice', 'gbc'), 'activate_plugins', 'webservice', 'psws_configuration');
+    add_menu_page( __('PS Webservice', 'psws'), __('PS Webservice', 'psws'), 'activate_plugins', 'webservice', 'psws_configuration');
 }
 add_action('admin_menu', 'psws_admin_menu');
 
@@ -85,6 +84,6 @@ function psws_sanitize($input){
 
 function psws_languages()
 {
-    load_plugin_textdomain('gbc', false, dirname(plugin_basename(__FILE__)));
+    load_plugin_textdomain('psws', false, dirname(plugin_basename( __FILE__ )));
 }
 add_action('init', 'psws_languages');

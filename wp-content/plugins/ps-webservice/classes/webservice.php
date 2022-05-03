@@ -17,7 +17,7 @@ class psws_webservice
 		return $array;
 	}
 
-
+	// get Prestashop user & address data via webservice
 	public function psws_getCustomers($shop_url, $decrypt_pass)
 	{				
 		$args = array(
@@ -34,14 +34,14 @@ class psws_webservice
 		$result = json_decode( $body, true );
 		$customers = $result['customers'];
 
-		//get addresses
+		//get addresses rows
 		$url = $shop_url . '/api/addresses/?display=[id_customer,firstname,lastname,id_state,id_country,address1,address2,postcode,city,other,phone,phone_mobile,vat_number,dni,company]&output_format=JSON';
 		$response = wp_remote_get( $url, $args );
 		$body = wp_remote_retrieve_body( $response );	
 		$result = json_decode( $body, true );
 		$addresses = $result['addresses'];
 		
-		//get country isos. Only actives
+		//get country rows with iso codes and only actives
 		$url = $shop_url . '/api/countries/?display=[id,iso_code]&filter[active]=[1]&output_format=JSON';
 		$response = wp_remote_get( $url, $args );
 		$body = wp_remote_retrieve_body( $response );	
@@ -55,8 +55,8 @@ class psws_webservice
 			$addresses[$pos]['id_country'] = $countries[$country_pos]['iso_code'];
 		}
 
-		//get states. Only actives
-		$url = $shop_url . '/api/states/?display=[id,name]&filter[active]=[1]&output_format=JSON';
+		//get state rows with iso codes and only actives
+		$url = $shop_url . '/api/states/?display=[id,name, iso_code]&filter[active]=[1]&output_format=JSON';
 		$response = wp_remote_get( $url, $args );
 		$body = wp_remote_retrieve_body( $response );	
 		$result = json_decode( $body, true );
@@ -69,12 +69,12 @@ class psws_webservice
 			$addresses[$pos]['id_state'] = $states[$state_pos]['iso_code'];
 		}
 
-		if (isset($customers))
+		if ( isset( $customers ) )
 		{		
-			foreach ($customers as $customer_pos => $customer) 
+			foreach ( $customers as $customer_pos => $customer ) 
 			{		
-				//delete registered
-				if ( get_user_by( 'email', $customer['email']) ) 
+				//delete already registered
+				if ( get_user_by( 'email', $customer['email'] ) ) 
 				{
 					unset( $customer );
 
@@ -82,13 +82,13 @@ class psws_webservice
 					//get item addresses
 					$keys = array_keys( array_column( $addresses, 'id_customer'), $customer['id'] );
 
-					if(!empty( $keys ))
+					if( isset( $keys ) )
 					{	
 						foreach( $keys as $cont => $key ) 
 						{
 							//saving max 2 addresses
-							if($cont > 1 ) { break;	}	
-							$customers[$customer_pos]['addresses'][] = $addresses[$key];	
+							if( $cont > 1 ) { break; }	
+							$customer['addresses'][] = $addresses[$key];	
 						}
 					}
 				}
@@ -96,7 +96,7 @@ class psws_webservice
 			//reindexing array
 			array_values( $customers );
 
-		}else{	
+		} else {	
 			echo "error al sincronizar los clientes";
 		}
 
@@ -109,7 +109,7 @@ function psws_configuration()
 ?>
 <div class="wrap">								
 	<h2>
-		<?php _e("Prestashop WebService configuration", "gbc");?>
+		<?php _e( "Prestashop WebService configuration", "psws" );?>
 	</h2>
 
 	<?php 
@@ -130,33 +130,31 @@ function psws_configuration()
 		<table class="form-table">																				
 			<tr>
 				<th>
-					<?php _e("Prestashop Url:","gbc");?>
+					<?php _e( "Prestashop URL:", "psws" );?>
 				</th>
 				<td>							
 					<input type="text" name="option_url_ws" required value="<?php echo (isset($psws_options['option_url_ws'])) ? esc_attr($psws_options['option_url_ws']) : '';?>" />
-					<em><br><?php _e("Insert http or https without final '/' e.g: https://jjmontalban.github.io or http://jjmontalban.github.io", "gbc");?></em>						</td>
+					<em><br><?php _e( "Insert http or https without final '/' e.g: https://jjmontalban.github.io or http://jjmontalban.github.io", "psws" );?></em>						</td>
 				</td>
 			</tr>	
 			<tr>
 				<th>
-					<?php _e("Webservice key:", "gbc");?>
+					<?php _e( "Webservice Key:", "psws" );?>
 				</th>
 				<td>
 					<input type="text" name="option_pass_ws" required value="<?php echo (isset($psws_options['option_pass_ws'])) ? psws_encryption::decrypt($psws_options['option_pass_ws']) : '';?>" />			
-					<em><br><?php _e("You can make a webservice key from Prestashop -> Admin Information -> Web Service => Active webservice.", "gbc");?></em>					
+					<em><br><?php _e( "You can make a webservice key from Prestashop -> Admin Information -> Web Service => Active webservice.", "psws" );?></em>					
 				</td>
 			</tr>	 
 		</table>
-		<input type="submit" class="button-primary" value="<?php _e("Save", "gbc");?>" /> 
+		<input type="submit" class="button-primary" value="<?php _e( "Save Configuration", "psws" );?>" /> 
 	</form>
 	<br>
 	<form method="post">
-		<input type="submit" name="customers" class="button-primary" value="<?php _e("Check Customers", "gbc");?>">	
-		<input type="submit" name="otro" class="button-primary" value="<?php _e("Check Otra cosa", "gbc");?>">	
+		<input type="submit" name="customers" class="button-primary" value="<?php _e( "Sincronize Customers", "psws" );?>">
 	</form>
 
 	<?php if( isset( $_POST['customers'] ) ) { check_customers(); } ?>
-	<?php if( isset( $_POST['otro'] ) ) { echo "es lo siguiente"; } ?>
 
 </div>
     
@@ -170,127 +168,144 @@ function check_customers()
 	$decrypt_pass = psws_encryption::decrypt($psws_options['option_pass_ws']);						
 	$shop_url = esc_attr($psws_options['option_url_ws']);	
 	$webService = new psws_webservice();
-
 	$customers = $webService->psws_getCustomers($shop_url, $decrypt_pass);		
-	
+	$cont = 0;
+
 	if (isset( $customers ))
 	{
 		foreach ( $customers as $customer_pos => $customer )
 		{			
-			$userdata = array(
-				'ID' => $customer['id'],
-				'user_login' => $customer['email'],
-				'nickname' => $customer['email'],
-				'display_name' => $customer['firstname'],
-				'user_pass' => $customer['passwd'],
-				'user_email' => $customer['email'],
-				'first_name' => $customer['firstname'],
-				'last_name' => $customer['lastname'],
-				'role' => 'customer',
-				'user_registered' => $customer['date_add'],
-			);
-
-			$user = get_userdata( $customer['id'] );
-
-			if ( $user === false ) {
-
-				//user id dont exist, to creating an user with same Prestashop ID
-				if( !get_user_by( 'email', $customer['email'] )) {	
-						$wpdb->insert( $wpdb->users, array(
-										'ID' => $customer['id'],
-										'user_login' => $customer['email'],
-										) 
-								);
-				}
+			if( empty( get_user_by( 'login', $customer['email'] ) ) && empty( get_user_by( 'email', $customer['email'] ) ) ) 
+			{
+				$userdata = array(
+					'user_login' => $customer['email'],
+					'nickname' => $customer['email'],
+					'display_name' => $customer['firstname'],
+					'user_pass' => $customer['passwd'],
+					'user_email' => $customer['email'],
+					'first_name' => $customer['firstname'],
+					'last_name' => $customer['lastname'],
+					'role' => 'customer',
+					'user_registered' => $customer['date_add'],
+				);
 
 				$user_id = wp_insert_user( $userdata );
+				$cont++;
 
+				//if got error
 				if (is_wp_error( $user_id )) {
 					echo json_encode( array( 'resp' => 'error', 'message' => $user_id->get_error_message() ) );
 					exit;
 				}
-			}else{
-				continue;
-			}
+				else{
 
-			//woo metas
+					//woo metas
+					update_user_meta( $user_id, "billing_email", $customer['email'] );
 
-			update_user_meta( $user_id, "billing_first_name", $customers[$customer_pos]['addresses'][0]['firstname'] );
-			update_user_meta( $user_id, "billing_last_name", $customers[$customer_pos]['addresses'][0]['lastname']);
-			
-			//get company name (for billing)
-			if ( !empty( $customers[$customer_pos]['company']) ) {
-				update_user_meta( $user_id, "billing_company", $customers[$customer_pos]['company']);
+					$billing_first_name = $customer['addresses'][0]['firstname'] ?? '';
+					update_user_meta( $user_id, "billing_first_name", $billing_first_name );
 
-			}else if( !empty( $customers[$customer_pos]['addresses'][0]['company'] ) ){
-				update_user_meta( $user_id, "billing_company", $customers[$customer_pos]['addresses'][0]['company']);
-			
-			}else if( !empty( $customers[$customer_pos][1]['company']) ) {
-				update_user_meta( $user_id, "billing_company", $customers[$customer_pos]['addresses'][1]['company']);
-			}
+					$billing_last_name = $customer['addresses'][0]['lastname'] ?? '';
+					update_user_meta( $user_id, "billing_last_name", $billing_last_name );
 
-			update_user_meta( $user_id, "billing_email", $customers[$customer_pos]['email'] );
-			update_user_meta( $user_id, "billing_address_1", $customers[$customer_pos]['addresses'][0]['address1']);
-			update_user_meta( $user_id, "billing_address_2", $customers[$customer_pos]['addresses'][0]['address2'] );
-			update_user_meta( $user_id, "billing_city", $customers[$customer_pos]['addresses'][0]['city']);
-			update_user_meta( $user_id, "billing_postcode", $customers[$customer_pos]['addresses'][0]['postcode'] );
-			update_user_meta( $user_id, "billing_country", $customers[$customer_pos]['addresses'][0]['id_country']);
-			
-			//States for Spanish customers
-			if( $customers[$customer_pos]['addresses'][0]['id_country'] == 'ES' ) {
-				update_user_meta( $user_id, "billing_state", $customers[$customer_pos]['addresses'][0]['id_state'] );
-			}
+					$billing_address_1 = $customer['addresses'][0]['address1']  ?? ''; 
+					update_user_meta( $user_id, "billing_address_1", $billing_address_1 );
 
-			//get phones (for billing)
-			if( !empty( $customers[$customer_pos]['addresses'][0]['phone_mobile']) ) {
-				update_user_meta( $user_id, "billing_phone", $customers[$customer_pos]['addresses'][0]['phone_mobile']);
+					$billing_address_2 = $customer['addresses'][0]['address2'] ?? '';
+					update_user_meta( $user_id, "billing_address_2", $billing_address_2 );
+
+					$billing_city = $customer['addresses'][0]['city'] ?? '';
+					update_user_meta( $user_id, "billing_city", $billing_city );
+
+					$billing_postcode = $customer['addresses'][0]['postcode'] ?? '';
+					update_user_meta( $user_id, "billing_postcode", $billing_postcode );
+
+					$billing_country = $customer['addresses'][0]['id_country'] ?? '';
+					update_user_meta( $user_id, "billing_country", $billing_country );
+					
+					//second address
+					$shipping_address_1 = $customer['addresses'][1]['address1'] ?? '';
+					update_user_meta( $user_id, "shipping_address_1", $shipping_address_1 );
+					
+					$shipping_address_2 = $customer['addresses'][1]['address2'] ?? '';
+					update_user_meta( $user_id, "shipping_address_2", $shipping_address_2 );
+					
+					$shipping_city = $customer['addresses'][1]['city'] ?? '';
+					update_user_meta( $user_id, "shipping_city", $shipping_city );
+
+					$shipping_postcode = $customer['addresses'][1]['postcode'] ?? '';
+					update_user_meta( $user_id, "shipping_postcode", $shipping_postcode );
+
+					$shipping_first_name =  $customer['addresses'][1]['firstname'] ?? '';
+					update_user_meta( $user_id, "shipping_first_name", $shipping_first_name );
+					
+					$shipping_last_name = $customer['addresses'][1]['lastname'] ?? '';
+					update_user_meta( $user_id, "shipping_last_name", $shipping_last_name );
+					
+					$shipping_country = $customer['addresses'][1]['id_country']  ?? '';
+					update_user_meta( $user_id, "shipping_country", $shipping_country );
+					
+					//States for Spanish customers
+					if ( isset( $customer['addresses'][0]['id_country'] ) && $customer['addresses'][0]['id_country'] == 'ES' ) {
+						$billing_state = $customer['addresses'][0]['id_country'] ?? '';
+						update_user_meta( $user_id, "billing_state", $billing_state );
+					}
+
+					//get company name (for billing)
+					if ( isset( $customer['company'] ) ) {
+						update_user_meta( $user_id, "billing_company", $customer['company']);
+
+					}else if( isset( $customer['addresses'][0]['company'] ) ){
+						update_user_meta( $user_id, "billing_company", $customer['addresses'][0]['company']);
+					
+					}else if( isset( $customer[1]['company'] ) ) {
+						update_user_meta( $user_id, "billing_company", $customer['addresses'][1]['company']);
+					}
+
+					//get phones (for billing)
+					if( isset( $customer['addresses'][0]['phone_mobile'] ) ) {
+						update_user_meta( $user_id, "billing_phone", $customer['addresses'][0]['phone_mobile']);
+					}else if( isset( $customer['addresses'][0]['phone'] ) ) {
+						update_user_meta( $user_id, "billing_phone", $customer['addresses'][0]['phone']);
+					} 
+
+					//get company name (for shipping)
+					if ( isset( $customer['company'] ) ) {
+						update_user_meta( $user_id, "shipping_company", $customer['company']);
+
+					}else if( isset( $customer['addresses'][1]['company'] ) ){
+						update_user_meta( $user_id, "shipping_company", $customer['addresses'][1]['company']);
+					
+					}else if( isset( $customer[1]['company'] ) ) {
+						update_user_meta( $user_id, "shipping_company", $customer['addresses'][0]['company']);
+					}else {
+						update_user_meta( $user_id, "shipping_company", get_user_meta( $user_id, 'billing_company' , true ) );
+					}
+
+					//get phones (for shipping)
+					if( isset( $customer['addresses'][1]['phone_mobile'] ) ) {
+						update_user_meta( $user_id, "shipping_phone", $customer['addresses'][1]['phone_mobile']);
+					}else if( isset( $customer['addresses'][1]['phone'] ) ) {
+						update_user_meta( $user_id, "shipping_phone", $customer['addresses'][1]['phone']);
+					}else {
+						update_user_meta( $user_id, "shipping_phone", get_user_meta( $user_id, 'billing_phone' , true ) );
+					} 
+					
+					//States for Spanish customers
+					if( isset( $customer['addresses'][1]['id_state'] ) && $customer['addresses'][1]['id_country'] == 'ES' )  {
+						update_user_meta( $user_id, "shipping_state", $customer['addresses'][1]['id_state']);
+					}
+				}
+
 			}else {
-				update_user_meta( $user_id, "billing_phone", $customers[$customer_pos]['addresses'][0]['phone']);
-			} 
-
-			update_user_meta( $user_id, "shipping_first_name", $customers[$customer_pos]['addresses'][1]['firstname']);
-			update_user_meta( $user_id, "shipping_last_name", $customer[$customer_pos]['addresses'][1]['lastname']);
-			
-			//get company name (for shipping)
-			if ( !empty( $customers[$customer_pos]['company']) ) {
-				update_user_meta( $user_id, "shipping_company", $customers[$customer_pos]['company']);
-
-			}else if( !empty( $customers[$customer_pos]['addresses'][1]['company'] ) ){
-				update_user_meta( $user_id, "shipping_company", $customers[$customer_pos]['addresses'][1]['company']);
-			
-			}else if( !empty( $customers[$customer_pos][1]['company']) ) {
-				update_user_meta( $user_id, "shipping_company", $customers[$customer_pos]['addresses'][0]['company']);
-			}else {
-				update_user_meta( $user_id, "shipping_company", get_user_meta( $user_id, 'billing_company' , true ) );
-			}
-
-			update_user_meta( $user_id, "shipping_address_1", $customers[$customer_pos]['addresses'][1]['address1']);
-			update_user_meta( $user_id, "shipping_address_2", $customers[$customer_pos]['addresses'][1]['address2']);
-			update_user_meta( $user_id, "shipping_city", $customers[$customer_pos]['addresses'][1]['city']);
-			update_user_meta( $user_id, "shipping_postcode", $customers[$customer_pos]['addresses'][1]['postcode'] );
-			
-			//get phones (for shipping)
-			if( !empty( $customers[$customer_pos]['addresses'][1]['phone_mobile'] )) {
-				update_user_meta( $user_id, "shipping_phone", $customers[$customer_pos]['addresses'][1]['phone_mobile']);
-			}else if( !empty( $customers[$customer_pos]['addresses'][1]['phone'] ) ){
-				update_user_meta( $user_id, "shipping_phone", $customers[$customer_pos]['addresses'][1]['phone']);
-			}else {
-				update_user_meta( $user_id, "shipping_phone", get_user_meta( $user_id, 'billing_phone' , true ) );
-			} 
-
-			update_user_meta( $user_id, "shipping_country", $customers[$customer_pos]['addresses'][1]['id_country']);
-			
-			//States for Spanish customers
-			if( $customers[$customer_pos]['addresses'][1]['id_country'] == 'ES' ) {
-				update_user_meta( $user_id, "shipping_state", $customers[$customer_pos]['addresses'][1]['id_state']);
-			}
+					continue;
+				  }
+	
 		}
 
-	}else{
-		echo "No hay clientes que sincronizar";
-	}		
+	}	
 
-	return "Se sincronizaron" . count( $customers ) . "clientes";
+ 	echo "Se sincronizaron " . $cont . " clientes";
 }
 
 

@@ -1,0 +1,55 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-08-26 17:32+0200\n"
+"PO-Revision-Date: 2022-05-03 13:41+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#. Description of the plugin
+msgid "Plugin to sincronize customers Prestashop via webservice"
+msgstr "Complemento que sincroniza Woocomerce con Prestashop desde servicios web"
+
+#: ps-webservice.php:37
+msgid "This plugin requires Woocommerce to be installed and activated."
+msgstr "Este plugin requeire una instalaciÃ³n de Woocommerce activa."
+
+#: webservice.php:112
+msgid "Prestashop WebService configuration"
+msgstr "Configuración del servicio web de Prestashop"
+
+#: webservice.php:133
+msgid "Prestashop URL:"
+msgstr "URL de Prestashop:"
+
+#: webservice.php:142
+msgid "Webservice Key:"
+msgstr "Clave de Servicio Web:"
+
+#: webservice.php:137
+msgid "Insert http or https without final '/' e.g: https://jjmontalban.github.io or http://jjmontalban.github.io"
+msgstr "Insertar http o https y no añadir el '/'. Por ejemplo:  https://jjmontalban.github.io ó http://jjmontalban.github.io"
+
+#: webservice.php:146
+msgid "You can make a webservice key from Prestashop -> Admin Information -> Web Service => Active webservice."
+msgstr "Puede crear una clave de servicio web Prestahop desde Prestashop -> Avanzado -> Web Service => Activar servicio web."
+
+#: webservice.php:150
+msgid "Save Configuration"
+msgstr "Guardar Configuración"
+
+#: webservice.php:154
+msgid "Sincronize Customers"
+msgstr "Sincronizar Clientes"
