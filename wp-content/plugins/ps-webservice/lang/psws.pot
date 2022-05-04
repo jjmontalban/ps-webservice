@@ -19,28 +19,44 @@ msgstr ""
 
 #. Description of the plugin
 msgid "Plugin to sincronize customers Prestashop via webservice"
-msgstr "Complemento que sincroniza Woocomerce con Prestashop desde servicios web"
+msgstr ""
 
 #: ps-webservice.php:37
 msgid "This plugin requires Woocommerce to be installed and activated."
-msgstr "Este plugin requeire una instalaciÃ³n de Woocommerce activa."
+msgstr ""
 
 #: webservice.php:112
 msgid "Prestashop WebService configuration"
-msgstr "Configuración del servicio web de Prestashop"
+msgstr ""
 
 #: webservice.php:133
 msgid "Prestashop Url"
-msgstr "URL de Prestashop"
+msgstr ""
 
 #: webservice.php:137
 msgid "Insert http or https without final '/' e.g: https://jjmontalban.github.io or http://jjmontalban.github.io"
-msgstr "Insertar http o https y no añadir el '/'. Por ejemplo:  https://jjmontalban.github.io ó http://jjmontalban.github.io"
+msgstr ""
 
 #: webservice.php:146
 msgid "You can make a webservice key from Prestashop -> Admin Information -> Web Service => Active webservice."
-msgstr "Puede crear una clave de servicio web Prestahop desde Prestashop -> Avanzado -> Web Service => Activar servicio web."
+msgstr ""
 
 #: webservice.php:154
 msgid "Sincronize Customers"
-msgstr "Sincronizar Clientes"
+msgstr ""
+
+#: ps-webservice.php:100-170
+msgid "Phone 2"
+msgstr ""
+
+#: ps-webservice.php:100-170
+msgid "CIF/NIF"
+msgstr ""
+
+#: ps-webservice.php:100-170
+msgid "VAT Number"
+msgstr ""
+
+#: ps-webservice.php:100-170
+msgid "Address Name"
+msgstr ""

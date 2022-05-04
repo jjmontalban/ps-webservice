@@ -53,3 +53,19 @@ msgstr "Guardar Configuración"
 #: webservice.php:154
 msgid "Sincronize Customers"
 msgstr "Sincronizar Clientes"
+
+#: ps-webservice.php:100-170
+msgid "Phone 2"
+msgstr "Teléfono 2"
+
+#: ps-webservice.php:100-170
+msgid "CIF/NIF"
+msgstr "Código Fiscal"
+
+#: ps-webservice.php:100-170
+msgid "VAT Number"
+msgstr "IVA Europeo"
+
+#: ps-webservice.php:100-170
+msgid "Address Name"
+msgstr "Nombre Dirección"

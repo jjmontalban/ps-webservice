@@ -18,6 +18,8 @@ class psws_webservice
 	}
 
 	// get Prestashop user & address data via webservice
+	// custom mapping. 
+	
 	public function psws_getCustomers($shop_url, $decrypt_pass)
 	{				
 		$args = array(
@@ -35,7 +37,7 @@ class psws_webservice
 		$customers = $result['customers'];
 
 		//get addresses rows
-		$url = $shop_url . '/api/addresses/?display=[id_customer,firstname,lastname,id_state,id_country,address1,address2,postcode,city,other,phone,phone_mobile,vat_number,dni,company]&output_format=JSON';
+		$url = $shop_url . '/api/addresses/?display=[id_customer,firstname,lastname,id_state,id_country,address1,address2,postcode,city,alias,phone,phone_mobile,vat_number,dni,company]&filter[deleted]=[0]&output_format=JSON';
 		$response = wp_remote_get( $url, $args );
 		$body = wp_remote_retrieve_body( $response );	
 		$result = json_decode( $body, true );
@@ -48,7 +50,7 @@ class psws_webservice
 		$result = json_decode( $body, true );
 		$countries = $result['countries'];
 
-		//change id_country by his iso_code
+		//change id_country by his iso_code and store in $addresses array
 		foreach( $addresses as $pos => $address ) 
 		{	
 			$country_pos = array_search($address['id_country'], array_column($countries, 'id'));
@@ -62,7 +64,7 @@ class psws_webservice
 		$result = json_decode( $body, true );
 		$states = $result['states'];
 
-		//change id_state by his ISO Code (only for Spain)
+		//change id_state by his ISO Code and store in $addresses array
 		foreach( $addresses as $pos => $address ) 
 		{	
 			$state_pos = array_search($address['id_state'], array_column($states, 'id'));
@@ -70,31 +72,26 @@ class psws_webservice
 		}
 
 		if ( isset( $customers ) )
-		{		
-			foreach ( $customers as $customer_pos => $customer ) 
+		{	
+			//get id_customer field for each address
+			$valor_col = array_column( $addresses, 'id_customer');
+
+			foreach ( $customers as $pos => $customer ) 
 			{		
-				//delete already registered
-				if ( get_user_by( 'email', $customer['email'] ) ) 
+				//if email is not registered
+				if ( !get_user_by( 'email', $customer['email'] ) ) 
 				{
-					unset( $customer );
+					//Get id_address addresses of this customer
+					$keys = array_keys( $valor_col, $customer['id'] );
 
-				}else{
-					//get item addresses
-					$keys = array_keys( array_column( $addresses, 'id_customer'), $customer['id'] );
+					if( isset( $keys[0] ) )			
+						$customers[$pos]['addresses'][0] = $addresses[ $keys[0] ];	 
 
-					if( isset( $keys ) )
-					{	
-						foreach( $keys as $cont => $key ) 
-						{
-							//saving max 2 addresses
-							if( $cont > 1 ) { break; }	
-							$customer['addresses'][] = $addresses[$key];	
-						}
-					}
+					//saving max 2 addresses
+					if( isset( $keys[1] ) ) 
+						$customers[$pos]['addresses'][1] = $addresses[ $keys[1] ];	 					
 				}
 			}
-			//reindexing array
-			array_values( $customers );
 
 		} else {	
 			echo "error al sincronizar los clientes";
@@ -223,7 +220,28 @@ function check_customers()
 					$billing_country = $customer['addresses'][0]['id_country'] ?? '';
 					update_user_meta( $user_id, "billing_country", $billing_country );
 					
-					//second address
+					$billing_state = $customer['addresses'][0]['id_state'] ?? '';
+					update_user_meta( $user_id, "billing_state", $billing_state );
+			
+					//get phones (for billing)
+					$billing_phone = $customer['addresses'][0]['phone_mobile'] ?? '';
+					update_user_meta( $user_id, "billing_phone", $billing_phone );
+					
+					//Custom billings
+					$billing_phone2 = $customer['addresses'][0]['phone'] ?? '';
+					update_user_meta( $user_id, "billing_phone2", $billing_phone2 );
+
+					$billing_cif = $customer['addresses'][0]['dni'] ?? '';
+					update_user_meta( $user_id, "billing_cif", $billing_cif );
+
+					$billing_vat = $customer['addresses'][0]['vat_number'] ?? '';
+					update_user_meta( $user_id, "billing_vat", $billing_vat );
+					
+					$billing_alias = $customer['addresses'][0]['alias'] ?? '';
+					update_user_meta( $user_id, "billing_alias", $billing_alias );
+					
+					
+					//second address.
 					$shipping_address_1 = $customer['addresses'][1]['address1'] ?? '';
 					update_user_meta( $user_id, "shipping_address_1", $shipping_address_1 );
 					
@@ -245,55 +263,37 @@ function check_customers()
 					$shipping_country = $customer['addresses'][1]['id_country']  ?? '';
 					update_user_meta( $user_id, "shipping_country", $shipping_country );
 					
-					//States for Spanish customers
-					if ( isset( $customer['addresses'][0]['id_country'] ) && $customer['addresses'][0]['id_country'] == 'ES' ) {
-						$billing_state = $customer['addresses'][0]['id_country'] ?? '';
-						update_user_meta( $user_id, "billing_state", $billing_state );
-					}
+					$shipping_state = $customer['addresses'][1]['id_state'] ?? '';
+					update_user_meta( $user_id, "shipping_state", $shipping_state );
 
-					//get company name (for billing)
+					$shipping_phone = $customer['addresses'][1]['phone'] ?? '';
+					update_user_meta( $user_id, "shipping_phone", $shipping_phone );
+					
+					//Custom shippings
+					$shipping_phone2 = $customer['addresses'][1]['phone_mobile'] ?? '';
+					update_user_meta( $user_id, "shipping_phone2", $shipping_phone2 );
+	
+					$shipping_alias = $customer['addresses'][1]['alias'] ?? '';
+					update_user_meta( $user_id, "shipping_alias", $shipping_alias );
+
+					//get company name (for billing). 
+					//Prestashop is redundant when saving the company name
+					//Is stored in customer data and in each customer address...
 					if ( isset( $customer['company'] ) ) {
 						update_user_meta( $user_id, "billing_company", $customer['company']);
 
 					}else if( isset( $customer['addresses'][0]['company'] ) ){
 						update_user_meta( $user_id, "billing_company", $customer['addresses'][0]['company']);
 					
-					}else if( isset( $customer[1]['company'] ) ) {
+					}else if( isset( $customer['addresses'][1]['company'] ) ) {
 						update_user_meta( $user_id, "billing_company", $customer['addresses'][1]['company']);
 					}
-
-					//get phones (for billing)
-					if( isset( $customer['addresses'][0]['phone_mobile'] ) ) {
-						update_user_meta( $user_id, "billing_phone", $customer['addresses'][0]['phone_mobile']);
-					}else if( isset( $customer['addresses'][0]['phone'] ) ) {
-						update_user_meta( $user_id, "billing_phone", $customer['addresses'][0]['phone']);
-					} 
-
 					//get company name (for shipping)
 					if ( isset( $customer['company'] ) ) {
 						update_user_meta( $user_id, "shipping_company", $customer['company']);
 
 					}else if( isset( $customer['addresses'][1]['company'] ) ){
 						update_user_meta( $user_id, "shipping_company", $customer['addresses'][1]['company']);
-					
-					}else if( isset( $customer[1]['company'] ) ) {
-						update_user_meta( $user_id, "shipping_company", $customer['addresses'][0]['company']);
-					}else {
-						update_user_meta( $user_id, "shipping_company", get_user_meta( $user_id, 'billing_company' , true ) );
-					}
-
-					//get phones (for shipping)
-					if( isset( $customer['addresses'][1]['phone_mobile'] ) ) {
-						update_user_meta( $user_id, "shipping_phone", $customer['addresses'][1]['phone_mobile']);
-					}else if( isset( $customer['addresses'][1]['phone'] ) ) {
-						update_user_meta( $user_id, "shipping_phone", $customer['addresses'][1]['phone']);
-					}else {
-						update_user_meta( $user_id, "shipping_phone", get_user_meta( $user_id, 'billing_phone' , true ) );
-					} 
-					
-					//States for Spanish customers
-					if( isset( $customer['addresses'][1]['id_state'] ) && $customer['addresses'][1]['id_country'] == 'ES' )  {
-						update_user_meta( $user_id, "shipping_state", $customer['addresses'][1]['id_state']);
 					}
 				}
 
