@@ -1,6 +1,6 @@
 === PS Webservice ===
 * Plugin Name: PS Webservice
-* Description: Plugin to sincronize customers Prestashop via webservice
+* Description: Plugin to sincronize Prestashop data via webservice
 * Version:     1.0.0
 * Plugin URI:  https://jjmontalban.github.io
 * Author:      JJMontalban
