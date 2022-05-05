@@ -15,16 +15,21 @@
 defined( 'ABSPATH' ) or die( '' );
 
 //Includes
-require plugin_dir_path( __FILE__ ) . 'classes/webservice.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/customer.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-webservice.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/filter.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/config.php';
 
 global $wpdb_db_version;
 $wpdb_db_version = '1.0.0'; 
+
 
 //Load plugin translated strings
 function psws_plugin_load_textdomain() {
     load_plugin_textdomain( 'psws', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' ); 
 }
 add_action( 'init', 'psws_plugin_load_textdomain' );
+
 
 //check if woocommerce active
 function woo_activate() {
@@ -38,6 +43,7 @@ function woo_activate() {
     }
 }
 register_activation_hook( __FILE__, 'woo_activate' ); // Register myplugin_activate on
+
 
 function psws_install()
 {
@@ -58,6 +64,7 @@ function psws_install()
 }
 register_activation_hook(__FILE__, 'psws_install');
 
+
 function psws_update_db_check()
 {
     global $wpdb_db_version;
@@ -67,20 +74,20 @@ function psws_update_db_check()
 }
 add_action('plugins_loaded', 'psws_update_db_check');
 
+
 function psws_admin_menu()
 {
     add_menu_page( "PS Webservice", "PS Webservice", 'activate_plugins', 'webservice', 'psws_configuration');
 }
 add_action('admin_menu', 'psws_admin_menu');
 
-function psws_settings(){		
+
+function psws_settings()
+{		
     register_setting('psws_config_group', 'psws_options', 'psws_sanitize');		
 }
 add_action('admin_init', 'psws_settings');
 
-function psws_sanitize($input){
-    return $input;
-}
 
 function psws_languages()
 {
@@ -89,88 +96,7 @@ function psws_languages()
 add_action('init', 'psws_languages');
 
 
-/**
-*  Insert custom fields in woo metas
-**/
-//Prestashop store 2 phones by each address. Woocommerce only 1 each address
-
-//Billing
-function custom_woocommerce_billing_fields($fields)
+function psws_sanitize($input)
 {
-    $fields['billing_phone2'] = array(
-        'label' => __('Phone 2', 'psws'), // Add custom field label
-        'required' => false,
-        'clear' => false, // add clear or not
-        'type' => 'text', // add field type
-        'class' => array('input-text'),    // add class name
-    );    
-    
-    $fields['billing_cif'] = array(
-        'label' => __('CIF/NIF', 'psws'), // Add custom field label
-        'required' => false,
-        'clear' => false, // add clear or not
-        'type' => 'text', // add field type
-        'class' => array('input-text'),    
-    );
-    
-    $fields['billing_vat'] = array(
-        'label' => __( "VAT Number", "psws" ), // Add custom field label
-        'required' => false,
-        'clear' => false, // add clear or not
-        'type' => 'text', // add field type
-        'class' => array('input-text'),    
-    );
-    
-    
-    $fields['billing_alias'] = array(
-        'label' => __( "Address name", "psws" ), // Add custom field label
-        'required' => false,
-        'clear' => false, // add clear or not
-        'type' => 'text', // add field type
-        'class' => array('input-text'),    
-    );
-    
-        return $fields;
+    return $input;
 }
-add_filter('woocommerce_billing_fields', 'custom_woocommerce_billing_fields');
-
-//Shipping
-function custom_woocommerce_shipping_fields($fields)
-{
-    $fields['shipping_phone2'] = array(
-        'label' => __( "Phone 2", "psws" ), // Add custom field label
-        'required' => false,
-        'clear' => false, // add clear or not
-        'type' => 'text', // add field type
-        'class' => array('input-text'),    // add class name
-        //'priority' => 5, To change the field location increase or decrease this value
-    );
-    
-    $fields['shipping_alias'] = array(
-        'label' => __("Address Name", "psws"), // Add custom field label
-        'required' => false,
-        'clear' => false, // add clear or not
-        'type' => 'text', // add field type
-        'class' => array('input-text'),    // add class name
-        'priority' => 1,  //To change the field location increase or decrease this value
-    );
-    
-    return $fields;
-}
-add_filter('woocommerce_shipping_fields', 'custom_woocommerce_shipping_fields');
-
-// Admin customer profile page
-function custom_woocommerce_customer_meta_fields( $fields ) {
-    
-    $fields['billing']['fields']['billing_phone2'] = array( 'label' => __( "Phone 2", "psws" ), 'description' => '' );
-    $fields['billing']['fields']['billing_cif'] = array( 'label' => __( "CIF/NIF", "psws" ), 'description' => '' );
-    $fields['billing']['fields']['billing_vat'] = array( 'label' => __( "VAT Number", "psws" ), 'description' => '' );
-    $fields['billing']['fields']['billing_alias'] = array( 'label' => __( "Address Name", "psws" ), 'description' => '' );
-
-    $fields['shipping']['fields']['shipping_phone2'] = array( 'label' => __( 'Phone 2', "psws" ), 'description' => '' );
-    $fields['shipping']['fields']['shipping_alias'] = array( 'label' => __( 'Address Name', "psws" ), 'description' => '' );
-		
-    return $fields;
-}
-add_filter( 'woocommerce_customer_meta_fields', 'custom_woocommerce_customer_meta_fields' );
-
